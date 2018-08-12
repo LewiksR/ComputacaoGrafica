@@ -1,6 +1,6 @@
 void setup()
 {
-  size(800, 800);
+  size(800, 600);
 }
 
 void draw()
@@ -10,35 +10,50 @@ void draw()
   float x = width/2;
   float y = height/2;
   
-  float ax = 0;
-  float ay = 0;
-  float bx = 0;
-  float by = 0;
-  
   float radius = 200;
   
   int resolution = 6;
   int sides = 3;
   
+  stroke(140, 200, 255, 127);
+  strokeWeight(1);
+  fill(210, 225, 255, 127);
+  
+  renderSnowfall(10, 10);
+  
   stroke(140, 200, 255);
   strokeWeight(2);
-  
   fill(210, 225, 255);
+  renderSnowflake(x, y, radius, resolution, sides);
+}
+
+void renderSnowfall(float radius, float granularity)
+{
+  for(int y = 0; y < granularity; y++)
+  {
+    for(int x = 0; x < granularity; x++)
+    {
+      renderSnowflake(
+        (x + (1.0 * (millis() % 1000) / 1000)) * width/granularity,
+        (y + (1.0 * (millis() % 1000) / 1000)) * height/granularity,
+        radius,
+        4,
+        3);
+    }
+  }
+}
+
+void renderSnowflake(float x, float y, float radius, int resolution, int sides)
+{
+  float[] a = { x, y - radius };
+  float[] b = rotate(x, y, a[0], a[1], TWO_PI / sides);
   
   beginShape();
-  for(int i = 0; i < sides + 1; i++)
+  for(int i = 0; i < sides; i++)
   {
-    bx = x + (cos(TWO_PI * i / sides) * radius);
-    by = y + (sin(TWO_PI * i / sides) * radius);
-    
-    if(i != 0)
-    {
-      kochVertex(ax, ay, bx, by, resolution);
-      println("a: (" + ax + ", " + bx + ") // b: (" + bx + ", " + by + ")");
-    }
-    
-    ax = x + (cos(TWO_PI * i / sides) * radius);
-    ay = y + (sin(TWO_PI * i / sides) * radius);
+    kochVertex(a[0], a[1], b[0], b[1], resolution);
+    a = b;
+    b = rotate(x, y, b[0], b[1], TWO_PI / sides);
   }
   endShape(CLOSE);
 }
