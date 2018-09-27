@@ -3,33 +3,45 @@ from OpenGL.GLU import *
 from OpenGL.GL import *
 from math import *
 
-def FunctionDrawVertexAt_halfCircle(x, y, radius, resolution):
-    the = pi/2.0 + (x/resolution)*(pi)
-    phi = 2.0*pi + (y/resolution)*(2.0*pi)
+def MathFunctionXCone(x):
+    return 2-x
 
-    print(cos(the) * cos(phi) * radius)
+def MathFunctionSphere(x, radius):
+    return 
 
-    glVertex3f(
-        cos(the) * cos(phi) * radius,
-        sin(the) * radius,
-        cos(the) * sin(phi) * radius)
-
-def Revolution(FunctionDrawVertexAt, radius, resolution):
+def DoRevolution(resolution, radius):
     glBegin(GL_QUADS)
 
     for y in range(0, resolution):
-        for x in range(0, resolution):
+        for x  in range(0, resolution):
             glColor3f(cos(x),sin(x),cos(y))
-
-            FunctionDrawVertexAt(x+0, y+0, radius, resolution)
-            FunctionDrawVertexAt(x+1, y+0, radius, resolution)
-            FunctionDrawVertexAt(x+1, y+1, radius, resolution)
-            FunctionDrawVertexAt(x+0, y+1, radius, resolution)
-
+            
+            glVertex3fv(Revolution(
+                MathFunctionXCone(x  / resolution * 2.0),
+                (y  ) * 1 * pi / resolution))
+            glVertex3fv(Revolution(
+                MathFunctionXCone(x  / resolution * 2.0),
+                (y+1) * 1 * pi / resolution))
+            glVertex3fv(Revolution(
+                MathFunctionXCone(x+1/ resolution * 2.0),
+                (y+1) * 1 * pi / resolution))
+            glVertex3fv(Revolution(
+                MathFunctionXCone(x+1/ resolution * 2.0),
+                (y  ) * 1 * pi / resolution))
+    
     glEnd()
 
-def MathFunctionXYParaboloid(x, y):
+def Revolution(fx, angle):
+    return [fx * cos(angle), fx, fx * sin(angle)]
+
+def MathFunctionXYRandomOne(x, y):
+    return x * y / (1 + pow(x, 2) + pow(y, 2))
+
+def MathFunctionXYSaddle(x, y):
     return 0.5 * (-pow(x, 2) + pow(y, 2))
+
+def MathFunctionXYParaboloid(x, y):
+    return 0.5 * (pow(x, 2) + pow(y, 2))
 
 def FunctionPlane(resolution, minX, maxX, minY, maxY, minWorldX, maxWorldX, minWorldY, maxWorldY):
     glBegin(GL_QUADS)
@@ -56,8 +68,8 @@ def FunctionPlaneVertexAt(x, y, resolution, minX, maxX, minY, maxY, minWorldX, m
 def Render():
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
     glRotatef(2,1,3,0)
-#    FunctionPlane(50, -2.0, 2.0, -2.0, 2.0, -2.0, 2.0, -2.0, 2.0)
-    Revolution(FunctionDrawVertexAt_halfCircle, 2.0, 50)
+#    FunctionPlane(50, -1.0, 3.0, -4.0, 4.0, -1.0, 3.0, -4.0, 4.0)
+    DoRevolution(10, 1)
     glutSwapBuffers()
   
 def timer(i):
@@ -73,8 +85,8 @@ glutDisplayFunc(Render)
 glEnable(GL_MULTISAMPLE)
 glEnable(GL_DEPTH_TEST)
 glClearColor(0.,0.,0.,1.)
-gluPerspective(60,800.0/600.0,0.1,50.0)
-glTranslatef(0.0,0.0,-8)
+gluPerspective(75,1000.0/700.0,0.1,50.0)
+glTranslatef(0.0,0.0,-10)
 glRotatef(45,1,1,1)
 glutTimerFunc(50,timer,1)
 glutMainLoop()
