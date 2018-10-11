@@ -33,23 +33,24 @@ for (let i = 0; i <= resolution; i++) {
         
         if (i < resolution) { geometry.vertices.push(SphereVertex(radius, theta, phi)); }
 
-        let v00 = ((i * (resolution)) + j) % verticesAmount;
-        let v01 = ((i * (resolution)) + j + 1) % verticesAmount;
-        let v10 = ((i * (resolution)) + j + resolution + 1) % verticesAmount;
-        let v11 = ((i * (resolution)) + j + resolution + 2) % verticesAmount;
+        let v00 = ((i * (resolution)) + j) % verticesAmount;                    // Vertex at x + 0, y + 0
+        let v01 = ((i * (resolution)) + j + 1) % verticesAmount;                // Vertex at x + 0, y + 1
+        let v10 = ((i * (resolution)) + j + resolution + 1) % verticesAmount;   // Vertex at x + 1, y + 0
+        let v11 = ((i * (resolution)) + j + resolution + 2) % verticesAmount;   // Vertex at x + 1, y + 1
 
         geometry.faces.push(new THREE.Face3(
-            v00,    // X+0, Y+0
-            v01,    // X+0, Y+1
-            v10));  // X+1, Y+0
+            v00,
+            v01,
+            v10));
         geometry.faces.push(new THREE.Face3(
-            v01,    // X+0, Y+1
-            v11,    // X+1, Y+1
-            v10));  // X+1, Y+0
+            v01,
+            v11,
+            v10));
     }
 }
 
-var material = new THREE.MeshDepthMaterial( { color: 0xffffff } );
+var material = new THREE.MeshDepthMaterial();
+//var material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
 var mesh = new THREE.Mesh(geometry, material);
 
 // var material = new THREE.PointsMaterial( { color: 0xffffff, size: 0.1 } );
@@ -59,11 +60,12 @@ scene.add( mesh );
 
 camera.position.z = 5;
 
+mesh.rotation.z = 0.3;
+
 var animate = function () {
     requestAnimationFrame( animate );
 
-    mesh.rotation.x += 0.01;
-    mesh.rotation.y += 0.02;
+    mesh.rotateY(0.01);
 
     renderer.render( scene, camera );
 };
