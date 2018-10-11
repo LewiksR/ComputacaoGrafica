@@ -7,6 +7,8 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+var texture = new THREE.TextureLoader().load("textures/earth.jpg");
+
 var geometry = new THREE.Geometry();
 
 // VARS
@@ -46,10 +48,14 @@ for (let i = 0; i <= resolution; i++) {
             v01,
             v11,
             v10));
+
+	// Create UVs
     }
 }
+geometry = new THREE.BoxGeometry( 1, 1, 1 );
+var material = new THREE.MeshStandardMaterial({ map: texture });
 
-var material = new THREE.MeshDepthMaterial();
+//var material = new THREE.MeshDepthMaterial();
 //var material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
 var mesh = new THREE.Mesh(geometry, material);
 
