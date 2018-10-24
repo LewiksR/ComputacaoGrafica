@@ -62,8 +62,8 @@ function MakeTriangle(vertex00, vertex01, vertex10) {
         ))),
         position: [
             vertex00[0], vertex00[1], vertex00[2],
-            vertex01[0], vertex01[1], vertex01[2],
             vertex10[0], vertex10[1], vertex10[2],
+            vertex01[0], vertex01[1], vertex01[2]
         ],
         uv: []
     };
