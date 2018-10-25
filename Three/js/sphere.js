@@ -10,9 +10,10 @@ var geometry = new THREE.BufferGeometry();
 // VARS
 var verticalSegments = 16;
 var horizontalSegments = 16;
-var radius = 2;
+var radius = 1.5;
 
-var texture = new THREE.TextureLoader().load("textures/earth.jpg");
+var earthTexture = new THREE.TextureLoader().load("textures/earth.jpg");
+var marsTexture = new THREE.TextureLoader().load("textures/mars.jpg");
 // /VARS
 
 function SphereVertexAsVector3(radius, theta, phi) {
@@ -138,25 +139,36 @@ geometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array(geometr
 //geometry = new THREE.SphereBufferGeometry(radius, verticalSegments, horizontalSegments);
 
 //var material = new THREE.MeshDepthMaterial();
-var material = new THREE.MeshBasicMaterial( { map: texture } );
+var earthMaterial = new THREE.MeshBasicMaterial( { map: earthTexture } );
+var marsMaterial = new THREE.MeshBasicMaterial( { map: marsTexture } );
 // var material = new THREE.PointsMaterial( { color: 0xffffff, size: 0.1 } );
 
-var mesh = new THREE.Mesh(geometry, material);
+var earthMesh = new THREE.Mesh(geometry, earthMaterial);
+var marsMesh = new THREE.Mesh(geometry, marsMaterial);
 // var mesh = new THREE.Points(geometry, material);
 
 
 
-scene.add( mesh );
+scene.add( earthMesh );
+scene.add( marsMesh );
 
 camera.position.z = 5;
 
-mesh.rotation.z = 0.3;
+earthMesh.position.x = -2;
+earthMesh.rotation.z = 0.3;
+
+marsMesh.position.x = 2;
+marsMesh.rotation.z = 0.3;
+marsMesh.scale.x = 0.7;
+marsMesh.scale.y = 0.7;
+marsMesh.scale.z = 0.7;
 
 var animate = function () {
 
     requestAnimationFrame( animate );
 
-    mesh.rotateY(0.005);
+    earthMesh.rotateY(0.005);
+    marsMesh.rotateY(0.005);
 
     renderer.render( scene, camera );
 
