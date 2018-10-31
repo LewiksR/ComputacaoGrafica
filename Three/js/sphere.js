@@ -115,7 +115,7 @@ for (let i = 0; i < verticalSegments; i++) {
         let theta0 = theta1;
         theta1 = -Math.PI / 2 + (Math.PI * (j + 1) / horizontalSegments);
         
-        quad = MakeQuad(
+        let quad = MakeQuad(
             SphereVertexAsArray( radius, theta0, phi0 ).concat([1-((i    )/verticalSegments), (j    )/horizontalSegments]),
             SphereVertexAsArray( radius, theta0, phi1 ).concat([1-((i    )/verticalSegments), (j + 1)/horizontalSegments]),
             SphereVertexAsArray( radius, theta1, phi0 ).concat([1-((i + 1)/verticalSegments), (j    )/horizontalSegments]),
