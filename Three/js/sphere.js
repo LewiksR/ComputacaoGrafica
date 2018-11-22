@@ -5,16 +5,55 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-var geometry = new THREE.BufferGeometry();
-
 // VARS
 var verticalSegments = 16;
 var horizontalSegments = 16;
 var radius = 1.5;
-
-var earthTexture = new THREE.TextureLoader().load("textures/earth.jpg");
-var marsTexture = new THREE.TextureLoader().load("textures/mars.jpg");
 // /VARS
+
+//
+// MAKING A SPHERE
+//
+
+// Calculating only one value to reduce overhead when generating geometry
+let phi1 = 0;
+
+var geometry = new THREE.BufferGeometry();
+let geometryData = {
+    normal: [],
+    position: [],
+    uv: []
+};
+
+for (let i = 0; i < verticalSegments; i++) {
+
+    let phi0 = phi1;
+    phi1 = 2 * Math.PI * (i + 1) / verticalSegments;
+    let theta1 = -Math.PI / 2;
+    
+    for (let j = 0; j < horizontalSegments; j++) {
+
+        let theta0 = theta1;
+        theta1 = -Math.PI / 2 + (Math.PI * (j + 1) / horizontalSegments);
+        
+        let quad = MakeQuad(
+            SphereVertexAsArray( radius, theta0, phi0 ).concat([1-((i    )/verticalSegments), (j    )/horizontalSegments]),
+            SphereVertexAsArray( radius, theta0, phi1 ).concat([1-((i    )/verticalSegments), (j + 1)/horizontalSegments]),
+            SphereVertexAsArray( radius, theta1, phi0 ).concat([1-((i + 1)/verticalSegments), (j    )/horizontalSegments]),
+            SphereVertexAsArray( radius, theta1, phi1 ).concat([1-((i + 1)/verticalSegments), (j + 1)/horizontalSegments]));
+
+        if (i == 0 && j == 0) { console.log(quad); }
+
+        geometryData.normal = geometryData.normal.concat(quad.normal);
+        geometryData.position = geometryData.position.concat(quad.position);
+        geometryData.uv = geometryData.uv.concat(quad.uv);
+        
+    }
+}
+
+geometry.addAttribute( 'normal', new THREE.BufferAttribute( new Float32Array(geometryData.normal), 3 ) );
+geometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array(geometryData.position), 3 ) );
+geometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array(geometryData.uv), 2 ) );
 
 function SphereVertexAsVector3(radius, theta, phi) {
     
@@ -95,80 +134,148 @@ function MakeQuad(vertex00, vertex01, vertex10, vertex11) {
 
 }
 
-let geometryData = {
-    normal: [],
-    position: [],
-    uv: []
+function makePlanet(name, geometry, texture, data) {
+    
+    let material = new THREE.MeshBasicMaterial( { map: texture } );
+
+    return {
+        name: name,
+        mesh: new THREE.Mesh(geometry, material),
+        texture: texture,
+        data: data
+    };
+
+}
+
+let bodies = [];
+
+let bodiesData = {
+
+    "sun": {
+        radius: 1,
+        parent: undefined,
+        parentDist: 0,
+        eccentricity: 0,
+        obliquity: 0,
+        inclination: 0,
+        tidalLock: false
+    },
+    "mercury": {
+        radius: 1,
+        parent: "sun",
+        parentDist: 1,
+        eccentricity: 1,
+        obliquity: 0,
+        inclination: 0,
+        tidalLock: false
+    },
+    "venus": {
+        radius: 1,
+        parent: "sun",
+        parentDist: 1,
+        eccentricity: 1,
+        obliquity: 0,
+        inclination: 0,
+        tidalLock: false
+    },
+    "earth": {
+        radius: 1,
+        parent: "sun",
+        parentDist: 1,
+        eccentricity: 1,
+        obliquity: 0,
+        inclination: 0,
+        tidalLock: false
+    },
+    "moon": {
+        radius: 1,
+        parent: "earth",
+        parentDist: 1,
+        eccentricity: 1,
+        obliquity: 0,
+        inclination: 0,
+        tidalLock: true
+    },
+    "mars": {
+        radius: 1,
+        parent: "sun",
+        parentDist: 1,
+        eccentricity: 1,
+        obliquity: 0,
+        inclination: 0,
+        tidalLock: false
+    },
+    "jupiter": {
+        radius: 1,
+        parent: "sun",
+        parentDist: 1,
+        eccentricity: 1,
+        obliquity: 0,
+        inclination: 0,
+        tidalLock: false
+    },
+    "saturn": {
+        radius: 1,
+        parent: "sun",
+        parentDist: 1,
+        eccentricity: 1,
+        obliquity: 0,
+        inclination: 0,
+        tidalLock: false
+    },
+    "uranus": {
+        radius: 1,
+        parent: "sun",
+        parentDist: 1,
+        eccentricity: 1,
+        obliquity: 0,
+        inclination: 0,
+        tidalLock: false
+    },
+    "neptune": {
+        radius: 1,
+        parent: "sun",
+        parentDist: 1,
+        eccentricity: 1,
+        obliquity: 0,
+        inclination: 0,
+        tidalLock: false
+    },
+
 };
 
-// Calculating only one value to reduce overhead when generating geometry
-let phi1 = 0;
-
-for (let i = 0; i < verticalSegments; i++) {
-
-    let phi0 = phi1;
-    phi1 = 2 * Math.PI * (i + 1) / verticalSegments;
-    let theta1 = -Math.PI / 2;
-    
-    for (let j = 0; j < horizontalSegments; j++) {
-
-        let theta0 = theta1;
-        theta1 = -Math.PI / 2 + (Math.PI * (j + 1) / horizontalSegments);
-        
-        let quad = MakeQuad(
-            SphereVertexAsArray( radius, theta0, phi0 ).concat([1-((i    )/verticalSegments), (j    )/horizontalSegments]),
-            SphereVertexAsArray( radius, theta0, phi1 ).concat([1-((i    )/verticalSegments), (j + 1)/horizontalSegments]),
-            SphereVertexAsArray( radius, theta1, phi0 ).concat([1-((i + 1)/verticalSegments), (j    )/horizontalSegments]),
-            SphereVertexAsArray( radius, theta1, phi1 ).concat([1-((i + 1)/verticalSegments), (j + 1)/horizontalSegments]));
-
-        if (i == 0 && j == 0) { console.log(quad); }
-
-        geometryData.normal = geometryData.normal.concat(quad.normal);
-        geometryData.position = geometryData.position.concat(quad.position);
-        geometryData.uv = geometryData.uv.concat(quad.uv);
-        
+for(let name in bodiesData) {
+    if (bodiesData.hasOwnProperty(name)) {
+        bodies.push(makePlanet(name, geometry, undefined /*texture*/, bodiesData[name]));
     }
 }
 
-geometry.addAttribute( 'normal', new THREE.BufferAttribute( new Float32Array(geometryData.normal), 3 ) );
-geometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array(geometryData.position), 3 ) );
-geometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array(geometryData.uv), 2 ) );
+//var earthMaterial = new THREE.MeshBasicMaterial( { map: earthTexture } );
+//var marsMaterial = new THREE.MeshBasicMaterial( { map: marsTexture } );
 
+//var earthMesh = new THREE.Mesh(geometry, earthMaterial);
+//var marsMesh = new THREE.Mesh(geometry, marsMaterial);
 
+//scene.add( earthMesh );
+//scene.add( marsMesh );
 
-//geometry = new THREE.SphereBufferGeometry(radius, verticalSegments, horizontalSegments);
+for(let i = 0; i < bodies.length; i++) {
 
-//var material = new THREE.MeshDepthMaterial();
-var earthMaterial = new THREE.MeshBasicMaterial( { map: earthTexture } );
-var marsMaterial = new THREE.MeshBasicMaterial( { map: marsTexture } );
-// var material = new THREE.PointsMaterial( { color: 0xffffff, size: 0.1 } );
+    bodies[i].mesh.rotateY(0.005);
 
-var earthMesh = new THREE.Mesh(geometry, earthMaterial);
-var marsMesh = new THREE.Mesh(geometry, marsMaterial);
-// var mesh = new THREE.Points(geometry, material);
-
-
-
-scene.add( earthMesh );
-scene.add( marsMesh );
+}
 
 camera.position.z = 5;
-
-earthMesh.position.x = -2;
-earthMesh.rotation.z = 0.3;
-
-marsMesh.position.x = 2;
-marsMesh.rotation.z = 0.3;
-marsMesh.scale.x = 0.7;
-marsMesh.scale.y = 0.7;
-marsMesh.scale.z = 0.7;
 
 var animate = function () {
 
     requestAnimationFrame( animate );
 
-    earthMesh.rotateY(0.005);
-    marsMesh.rotateY(0.005);
+    for(let i = 0; i < bodies.length; i++) {
+
+        bodies[i].mesh.rotateY(0.005);
+
+    }
 
     renderer.render( scene, camera );
 
