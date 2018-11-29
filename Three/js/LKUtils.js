@@ -21,9 +21,9 @@ LKUtils = {
     math: {
         VectorProduct: function (vectorA, vectorB) {
             return [
-                (vectorA[1] * vectorB[2]) - (vectorA[2] * vectorB[1]),
-                (vectorA[2] * vectorB[0]) - (vectorA[0] * vectorB[2]),
-                (vectorA[0] * vectorB[1]) - (vectorA[1] * vectorB[0])
+                (vectorB[1] * vectorA[2]) - (vectorB[2] * vectorA[1]),
+                (vectorB[2] * vectorA[0]) - (vectorB[0] * vectorA[2]),
+                (vectorB[0] * vectorA[1]) - (vectorB[1] * vectorA[0])
             ];
         },
         UnitVector: function (vector) {
