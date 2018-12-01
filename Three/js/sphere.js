@@ -1,5 +1,5 @@
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 500 );
+var camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 500 );
 
 var renderer = new THREE.WebGLRenderer();
 
@@ -10,9 +10,9 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.BasicShadowMap;
 
 // VARS
-var verticalSegments = 32;
+var verticalSegments = 64;
 var horizontalSegments = 32;
-var radius = 1.5;
+var radius = 1;
 // /VARS
 
 //
@@ -146,7 +146,7 @@ function makePlanet(name, geometry, texture, data) {
     
     let material = new THREE.MeshPhongMaterial( {
         map: texture,
-        shininess: 5
+        shininess: 3
     } );
 
     let mesh = new THREE.Mesh(geometry, material);
@@ -183,15 +183,15 @@ let bodiesData = {
 //        inclination: 0,
 //        tidalLock: false
 //    },
-//    "venus": {
-//        radius: 1,
-//        parent: "sun",
-//        parentDist: 1,
-//        eccentricity: 1,
-//        obliquity: 0,
-//        inclination: 0,
-//        tidalLock: false
-//    },
+   "venus": {
+       radius: 0.5,
+       parent: "sun",
+       parentDist: 1,
+       eccentricity: 1,
+       obliquity: 0,
+       inclination: 0,
+       tidalLock: false
+   },
     "earth": {
         radius: 1,
         parent: "sun",
@@ -211,7 +211,7 @@ let bodiesData = {
 //        tidalLock: true
 //    },
     "mars": {
-        radius: 1,
+        radius: 0.7,
         parent: "sun",
         parentDist: 1,
         eccentricity: 1,
@@ -228,15 +228,15 @@ let bodiesData = {
 //        inclination: 0,
 //        tidalLock: false
 //    },
-//    "saturn": {
-//        radius: 1,
-//        parent: "sun",
-//        parentDist: 1,
-//        eccentricity: 1,
-//        obliquity: 0,
-//        inclination: 0,
-//        tidalLock: false
-//    },
+   "saturn": {
+       radius: 2,
+       parent: "sun",
+       parentDist: 1,
+       eccentricity: 1,
+       obliquity: 0,
+       inclination: 0,
+       tidalLock: false
+   },
 //    "uranus": {
 //        radius: 1,
 //        parent: "sun",
@@ -258,34 +258,36 @@ let bodiesData = {
 
 };
 
+let tempCounter = -6;
 for(let name in bodiesData) {
     if (bodiesData.hasOwnProperty(name)) {
         let texture = new THREE.TextureLoader().load("textures/"+name+".jpg");
         let body = makePlanet(name, geometry, texture, bodiesData[name]);
         bodies.push(body);
 
-        if (name == "mars") {
-            body.mesh.position.x = 2;
-        } else {
-            body.mesh.position.x = -2;
-        }
+        tempCounter += body.data.radius + 0.5;
+        body.mesh.position.x = tempCounter;
+        body.mesh.scale.set( body.data.radius, body.data.radius, body.data.radius );
+        tempCounter += body.data.radius + 0.5;
+
         scene.add(body.mesh);
     }
 }
 
 let ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
 
+// TEMP MAKING SKYBOX, Beautify later on
 let skyboxTexture = new THREE.TextureLoader().load("textures/skybox.jpg");
 let material = new THREE.MeshBasicMaterial( {
     map: skyboxTexture
 } );
 material.side = THREE.BackSide;
 let skyboxMesh = new THREE.Mesh(geometry, material);
-skyboxMesh.scale.set(10, 10, 10);
+skyboxMesh.scale.set(100, 100, 100);
 scene.add(skyboxMesh);
 
-let light = new THREE.PointLight(0xffffff, 3);
-light.position.set( 100, 10, 50 );
+let light = new THREE.PointLight(0xffffff, 2);
+light.position.set( 100, 20, 70 );
 light.castShadow = true;
 light.shadow.camera.near = 0.1;
 light.shadow.camera.far = 100;
@@ -293,7 +295,7 @@ light.shadow.camera.far = 100;
 scene.add(light);
 scene.add(ambientLight);
 
-camera.position.z = 5;
+camera.position.z = 10;
 
 var animate = function () {
 
