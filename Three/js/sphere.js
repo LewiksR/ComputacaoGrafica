@@ -143,37 +143,49 @@ function MakeQuad(vertex00, vertex01, vertex10, vertex11) {
 }
 
 function makePlanet(name, geometry, texture, data) {
-    
-    let material = new THREE.MeshPhongMaterial( {
-        map: texture,
-        shininess: 3
-    } );
 
-    let mesh = new THREE.Mesh(geometry, material);
-    mesh.castShadows = true;
-    mesh.receiveShadows = true;
+    let mesh = new THREE.Mesh(geometry, undefined);
+    
+    if (name !== "sun") {
+
+        mesh.material = new THREE.MeshPhongMaterial( {
+            map: texture,
+            shininess: 1
+        } );
+        mesh.castShadows = true;
+        mesh.receiveShadows = true;
+
+    } else {
+        
+        mesh.material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+        mesh.castShadows = false;
+        mesh.receiveShadows = false;
+
+    }
+
+    mesh.scale.set( data.radius, data.radius, data.radius );
+    mesh.rotateX( data.obliquity );
 
     return {
-        name: name,
         mesh: mesh,
         data: data
     };
 
 }
 
-let bodies = [];
+let bodies = {};
 
 let bodiesData = {
 
-//    "sun": {
-//        radius: 1,
-//        parent: undefined,
-//        parentDist: 0,
-//        eccentricity: 0,
-//        obliquity: 0,
-//        inclination: 0,
-//        tidalLock: false
-//    },
+    "sun": {
+        radius: 4.853237307,
+        parent: undefined,
+        parentDist: 0,
+        eccentricity: 0,
+        obliquity: 0,
+        inclination: 0,
+        tidalLock: false
+    },
 //    "mercury": {
 //        radius: 1,
 //        parent: "sun",
@@ -184,18 +196,18 @@ let bodiesData = {
 //        tidalLock: false
 //    },
    "venus": {
-       radius: 0.5,
+       radius: 2.250387126,
        parent: "sun",
-       parentDist: 1,
+       parentDist: 7,
        eccentricity: 1,
        obliquity: 0,
        inclination: 0,
        tidalLock: false
    },
     "earth": {
-        radius: 1,
+        radius: 2.278579456,
         parent: "sun",
-        parentDist: 1,
+        parentDist: 12,
         eccentricity: 1,
         obliquity: 0,
         inclination: 0,
@@ -211,9 +223,9 @@ let bodiesData = {
 //        tidalLock: true
 //    },
     "mars": {
-        radius: 0.7,
+        radius: 1.932447031,
         parent: "sun",
-        parentDist: 1,
+        parentDist: 17,
         eccentricity: 1,
         obliquity: 0,
         inclination: 0,
@@ -229,9 +241,9 @@ let bodiesData = {
 //        tidalLock: false
 //    },
    "saturn": {
-       radius: 2,
+       radius: 3.492192715,
        parent: "sun",
-       parentDist: 1,
+       parentDist: 24,
        eccentricity: 1,
        obliquity: 0,
        inclination: 0,
@@ -260,21 +272,19 @@ let bodiesData = {
 
 let tempCounter = -6;
 for(let name in bodiesData) {
+
     if (bodiesData.hasOwnProperty(name)) {
         let texture = new THREE.TextureLoader().load("textures/"+name+".jpg");
         let body = makePlanet(name, geometry, texture, bodiesData[name]);
-        bodies.push(body);
+        
+        let obj = {};
+        obj[name] = body;
 
-        tempCounter += body.data.radius + 0.5;
-        body.mesh.position.x = tempCounter;
-        body.mesh.scale.set( body.data.radius, body.data.radius, body.data.radius );
-        tempCounter += body.data.radius + 0.5;
+        bodies = Object.assign(bodies, obj );
 
         scene.add(body.mesh);
     }
 }
-
-let ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
 
 // TEMP MAKING SKYBOX, Beautify later on
 let skyboxTexture = new THREE.TextureLoader().load("textures/skybox.jpg");
@@ -286,24 +296,34 @@ let skyboxMesh = new THREE.Mesh(geometry, material);
 skyboxMesh.scale.set(100, 100, 100);
 scene.add(skyboxMesh);
 
-let light = new THREE.PointLight(0xffffff, 2);
-light.position.set( 100, 20, 70 );
+let light = new THREE.PointLight(0xffffff, 1.5);
 light.castShadow = true;
 light.shadow.camera.near = 0.1;
-light.shadow.camera.far = 100;
+light.shadow.camera.far = 1000;
+
+//let ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
 
 scene.add(light);
-scene.add(ambientLight);
+//scene.add(ambientLight);
 
-camera.position.z = 10;
+camera.position.set( 0, 10, 35 );
+camera.lookAt( -0, 0, 0 );
 
 var animate = function () {
 
     requestAnimationFrame( animate );
 
-    for(let i = 0; i < bodies.length; i++) {
+    for(let name in bodies) {
+        
+        let body = bodies[name];
 
-        bodies[i].mesh.rotateY(0.005);
+        body.mesh.rotateY(0.005);
+        
+        if (typeof body.data.parent !== 'undefined') {
+            
+            body.mesh.position.x = body.data.parentDist;
+            
+        }
 
     }
 
