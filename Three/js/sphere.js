@@ -1,19 +1,33 @@
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 500 );
+var camera = new THREE.PerspectiveCamera( 50, window.innerWidth/window.innerHeight, 0.1, 15000 );
 
-var renderer = new THREE.WebGLRenderer();
+var renderer = new THREE.WebGLRenderer({ antialias: true });
 
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.BasicShadowMap;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
+// EVENTS
+document.addEventListener("keydown", onKeyDown, false);
+document.addEventListener("keyup", onKeyUp, false);
+// /EVENTS
+
+// -----------------------
+// CHANGE PARAMETERS HERE:
 // VARS
-var verticalSegments = 64;
-var horizontalSegments = 32;
-var radius = 1;
+let verticalSegments = 64;
+let horizontalSegments = 32;
+let radius = 1;
+let planetRadiusModifier = 1;
+let orbitDistanceMultiplier = 0.4;
 // /VARS
+// -----------------------
+
+// Private
+let bodies = {};
+// /Private
 
 //
 // MAKING A SPHERE
@@ -46,8 +60,6 @@ for (let i = 0; i < verticalSegments; i++) {
             SphereVertexAsArray( radius, theta0, phi1 ).concat([1-((i    )/verticalSegments), (j + 1)/horizontalSegments]),
             SphereVertexAsArray( radius, theta1, phi0 ).concat([1-((i + 1)/verticalSegments), (j    )/horizontalSegments]),
             SphereVertexAsArray( radius, theta1, phi1 ).concat([1-((i + 1)/verticalSegments), (j + 1)/horizontalSegments]));
-
-        if (i == 0 && j == 0) { console.log(quad); }
 
         geometryData.normal = geometryData.normal.concat(quad.normal);
         geometryData.position = geometryData.position.concat(quad.position);
@@ -157,13 +169,15 @@ function makePlanet(name, geometry, texture, data) {
 
     } else {
         
-        mesh.material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+        mesh.material = new THREE.MeshBasicMaterial( { 
+            map: texture,
+        } );
         mesh.castShadows = false;
         mesh.receiveShadows = false;
 
     }
 
-    mesh.scale.set( data.radius, data.radius, data.radius );
+    mesh.scale.set( data.radius * planetRadiusModifier, data.radius * planetRadiusModifier, data.radius * planetRadiusModifier );
     mesh.rotateX( data.obliquity );
 
     return {
@@ -173,7 +187,61 @@ function makePlanet(name, geometry, texture, data) {
 
 }
 
-let bodies = {};
+function calculateOrbit(data) {
+
+
+
+}
+
+function onKeyDown(e) {
+
+    heldKeys[e.keyCode] = true;
+
+}
+
+function onKeyUp(e) {
+    
+    heldKeys[e.keyCode] = false;
+
+}
+
+function isKeyHeld(key) {
+
+    if (typeof heldKeys[key] === undefined) {
+        return false;
+    } else {
+        if (heldKeys[key]) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+}
+
+function handleCameraMovement() {
+    // A
+    if (isKeyHeld(65)) {
+        camera.translateX(-1);
+    }
+
+    // D
+    if (isKeyHeld(68)) {
+        camera.translateX(1);
+    }
+    
+    // W
+    if (isKeyHeld(87)) {
+        camera.translateZ(-1);
+    }
+    
+    // S
+    if (isKeyHeld(83)) {
+        camera.translateZ(1);
+    }
+}
+
+let heldKeys = [];
 
 let bodiesData = {
 
@@ -186,91 +254,91 @@ let bodiesData = {
         inclination: 0,
         tidalLock: false
     },
-//    "mercury": {
-//        radius: 1,
-//        parent: "sun",
-//        parentDist: 1,
-//        eccentricity: 1,
-//        obliquity: 0,
-//        inclination: 0,
-//        tidalLock: false
-//    },
+   "mercury": {
+       radius: 1.752102291,
+       parent: "sun",
+       parentDist: 50,
+       eccentricity: 0.20563,
+       obliquity: 0.034,
+       inclination: 0.05899212872,
+       tidalLock: false
+   },
    "venus": {
        radius: 2.250387126,
        parent: "sun",
-       parentDist: 7,
-       eccentricity: 1,
-       obliquity: 0,
-       inclination: 0,
+       parentDist: 100,
+       eccentricity: 0.0001181936969,
+       obliquity: 3.095515961,
+       inclination: 0.06736970913,
        tidalLock: false
    },
     "earth": {
         radius: 2.278579456,
         parent: "sun",
-        parentDist: 12,
-        eccentricity: 1,
-        obliquity: 0,
-        inclination: 0,
+        parentDist: 150,
+        eccentricity: 0.0002916200834,
+        obliquity: 0.4090926295,
+        inclination: 0.124878308,
         tidalLock: false
     },
-//    "moon": {
-//        radius: 1,
-//        parent: "earth",
-//        parentDist: 1,
-//        eccentricity: 1,
-//        obliquity: 0,
-//        inclination: 0,
-//        tidalLock: true
-//    },
+   "moon": {
+       radius: 1.043870767,
+       parent: "earth",
+       parentDist: 30,
+       eccentricity: 0.0009581857593,
+       obliquity: 0.02691995838,
+       inclination: 0.08979719002,
+       tidalLock: true
+   },
     "mars": {
         radius: 1.932447031,
         parent: "sun",
-        parentDist: 17,
-        eccentricity: 1,
-        obliquity: 0,
-        inclination: 0,
+        parentDist: 200,
+        eccentricity: 0.001630137521,
+        obliquity: 0.4396484386,
+        inclination: 0.09861110274,
         tidalLock: false
     },
-//    "jupiter": {
-//        radius: 1,
-//        parent: "sun",
-//        parentDist: 1,
-//        eccentricity: 1,
-//        obliquity: 0,
-//        inclination: 0,
-//        tidalLock: false
-//    },
+   "jupiter": {
+       radius: 3.592448536,
+       parent: "sun",
+       parentDist: 300,
+       eccentricity: 0.0008534660042,
+       obliquity: 0.05462880559,
+       inclination: 0.1062905514,
+       tidalLock: false
+   },
    "saturn": {
        radius: 3.492192715,
        parent: "sun",
-       parentDist: 24,
-       eccentricity: 1,
-       obliquity: 0,
-       inclination: 0,
+       parentDist: 400,
+       eccentricity: 0.0009861110274,
+       obliquity: 0.4665265091,
+       inclination: 0.09616764178,
        tidalLock: false
    },
-//    "uranus": {
-//        radius: 1,
-//        parent: "sun",
-//        parentDist: 1,
-//        eccentricity: 1,
-//        obliquity: 0,
-//        inclination: 0,
-//        tidalLock: false
-//    },
-//    "neptune": {
-//        radius: 1,
-//        parent: "sun",
-//        parentDist: 1,
-//        eccentricity: 1,
-//        obliquity: 0,
-//        inclination: 0,
-//        tidalLock: false
-//    },
+   "uranus": {
+       radius: 3.036304199,
+       parent: "sun",
+       parentDist: 500,
+       eccentricity: 0.0008095011604,
+       obliquity: 1.70640841,
+       inclination: 0.1130973355,
+       tidalLock: false
+   },
+   "neptune": {
+       radius: 3.020062763,
+       parent: "sun",
+       parentDist: 600,
+       eccentricity: 0.0001650383341,
+       obliquity: 0.4942772442,
+       inclination: 0.1122246709,
+       tidalLock: false
+   },
 
 };
 
-let tempCounter = -6;
+// Generating needed celestial bodies
 for(let name in bodiesData) {
 
     if (bodiesData.hasOwnProperty(name)) {
@@ -287,29 +355,50 @@ for(let name in bodiesData) {
 }
 
 // TEMP MAKING SKYBOX, Beautify later on
-let skyboxTexture = new THREE.TextureLoader().load("textures/skybox.jpg");
-let material = new THREE.MeshBasicMaterial( {
-    map: skyboxTexture
-} );
-material.side = THREE.BackSide;
-let skyboxMesh = new THREE.Mesh(geometry, material);
-skyboxMesh.scale.set(100, 100, 100);
+function MakeSkybox() {
+    let skyboxRadius = 3000;
+    let skyboxTexture = new THREE.TextureLoader().load("textures/skybox.jpg");
+    let material = new THREE.MeshBasicMaterial( {
+        map: skyboxTexture
+    } );
+    material.side = THREE.BackSide;
+    let skyboxMesh = new THREE.Mesh(geometry, material);
+    skyboxMesh.scale.set(skyboxRadius, skyboxRadius, skyboxRadius);
+    return skyboxMesh;
+}
+let skyboxMesh = MakeSkybox();
 scene.add(skyboxMesh);
 
+// Making sunlight
 let light = new THREE.PointLight(0xffffff, 1.5);
 light.castShadow = true;
 light.shadow.camera.near = 0.1;
-light.shadow.camera.far = 1000;
-
-//let ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
-
+light.shadow.camera.far = 10000;
+// let lensflare = MakeLensFlare(["lensflare0", "lensflare1"]);
+// light.add(lensflare);
 scene.add(light);
-//scene.add(ambientLight);
 
-camera.position.set( 0, 10, 35 );
-camera.lookAt( -0, 0, 0 );
+let tempXOffset = 0;
+let tempZOffset = 0;
+camera.position.set( tempXOffset, 50, 200 - tempZOffset );
 
-var animate = function () {
+// function MakeLensFlare(textureNames) {
+//     let textures = [];
+//     let textureLoader = new THREE.TextureLoader();
+
+//     let lensflare = new THREE.LensFlare();
+
+//     for (let i = 0; i < textureNames.length; i++) {
+//         let texture = textureLoader.load("textures/fx/" + textureNames[i] + ".png")
+//         textures.push(texture);
+//         lensflare.addElement(new THREE.LensflareElement(texture, window.innerHeight, 0));
+//     }
+
+//     return lensflare;
+// }
+
+// MAIN LOOP
+let animate = function () {
 
     requestAnimationFrame( animate );
 
@@ -321,12 +410,15 @@ var animate = function () {
         
         if (typeof body.data.parent !== 'undefined') {
             
-            body.mesh.position.x = body.data.parentDist;
+            body.mesh.position.x = body.data.parentDist * orbitDistanceMultiplier;
             
         }
 
     }
 
+    handleCameraMovement();
+    camera.lookAt( tempXOffset, 0, 0 );
+    
     renderer.render( scene, camera );
 
 };
