@@ -19,8 +19,7 @@ window.addEventListener("resize", onWindowResize, false);
 // VARS
 let verticalSegments = 128;
 let horizontalSegments = 64;
-let radius = 2;
-let planetRadiusModifier = 1;
+let planetRadiusModifier = 2;
 let planetRotationSpeedModifier = 2;
 let orbitSpeedMultiplier = 0.00015;
 let orbitDistanceMultiplier = 0.4;
@@ -144,7 +143,7 @@ let bodiesData = {
 // MAKING A SPHERE
 // Calculating only one value to reduce overhead when generating geometry
 let phi1 = 0;
-
+let radius = 1;
 let sphereGeometry = new THREE.BufferGeometry();
 let geometryData = {
     normal: [],
@@ -181,6 +180,7 @@ sphereGeometry.addAttribute( 'normal', new THREE.BufferAttribute( new Float32Arr
 sphereGeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array(geometryData.position), 3 ) );
 sphereGeometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array(geometryData.uv), 2 ) );
 
+// TODO: Calculate smooth normals
 // TEMP
 sphereGeometry = new THREE.SphereBufferGeometry( radius, verticalSegments, horizontalSegments);
 
