@@ -1,4 +1,4 @@
-This project was developed by Lewiks K�nig as a school project for the Computer Graphics course.
+This project was developed by Lewiks Koenig as a school project for the Computer Graphics course.
 
 CONTROLS:
 Left mouse button:      Orbit around target
